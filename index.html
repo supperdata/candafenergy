@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Candaf Energies – Daily Sales</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --black:#0D0D0F;--dark:#13141A;--panel:#1A1C24;--panel2:#1E2030;
+  --border:#2A2D3A;--accent:#F5A200;--adim:#7A5200;
+  --green:#22C55E;--red:#EF4444;--text:#E8EAF0;--muted:#7A7E92;--r:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--black);color:var(--text);font-family:system-ui,-apple-system,sans-serif;min-height:100vh}
+a{color:var(--accent)}
+input,select{background:var(--panel);border:1px solid var(--border);color:var(--text);border-radius:var(--r);padding:9px 13px;font-family:inherit;font-size:14px;outline:none;transition:border-color .2s;width:100%}
+input:focus,select:focus{border-color:var(--accent)}
+input::placeholder{color:var(--muted)}
+input:disabled,select:disabled{opacity:.45;cursor:not-allowed}
+button{cursor:pointer;font-family:inherit;font-size:13px;border-radius:var(--r);padding:8px 16px;border:1px solid var(--border);background:var(--panel);color:var(--text);transition:background .15s,transform .1s}
+button:hover{background:var(--panel2)}
+button:active{transform:scale(.97)}
+button:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-accent{background:var(--accent);color:#000;border-color:var(--adim);font-weight:700}
+.btn-accent:hover{background:#D98E00}
+.btn-ghost{background:var(--panel);border:1px solid var(--border);color:var(--text)}
+.btn-danger{background:#3A1010;color:var(--red);border-color:#7A2020}
+.btn-sm{padding:4px 10px;font-size:12px}
+label.lbl{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-weight:600;display:block;margin-bottom:5px}
+.cg{display:flex;flex-direction:column}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+
+/* HEADER */
+header{background:var(--dark);border-bottom:3px solid var(--accent);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-icon{width:46px;height:46px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px}
+.brand-name{font-size:24px;font-weight:900;letter-spacing:3px;color:var(--accent);line-height:1;text-transform:uppercase}
+.brand-sub{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:3px}
+.hdr-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.meta-badge{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:6px 13px;font-size:12px;color:var(--muted)}
+.meta-badge b{color:var(--text)}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--accent);color:#000;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0}
+
+/* NAV */
+.nav-bar{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:24px}
+.nav-btn{padding:10px 18px;border:none;background:none;font-size:13px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;border-radius:0}
+.nav-btn:hover{background:var(--panel2);color:var(--text)}
+.nav-btn.on{color:var(--accent);border-bottom-color:var(--accent);font-weight:700}
+
+/* MAIN */
+main{max-width:1320px;margin:0 auto;padding:24px 18px 60px}
+.sec-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:8px}
+
+/* PANEL CARD */
+.pcard{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;margin-bottom:14px}
+.pcard-head{background:var(--panel2);padding:11px 16px;border-bottom:1px solid var(--border);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+
+/* PUMP COUNT */
+.pc-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.pc-btn{width:38px;height:38px;border-radius:8px;border:1px solid var(--border);background:var(--panel);color:var(--muted);font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;padding:0}
+.pc-btn.on,.pc-btn:hover{background:var(--accent);color:#000;border-color:var(--accent)}
+
+/* PRICE BAR */
+.price-bar{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;background:var(--panel);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:var(--r);padding:14px 18px;margin-bottom:22px}
+
+/* PUMP GRID */
+.pump-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;margin-bottom:24px}
+.pump-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:border-color .2s}
+.pump-card.on-pump{border-color:var(--accent)}
+.pump-card.off-pump{opacity:.45}
+.pump-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--panel2);border-bottom:1px solid var(--border)}
+.pump-id{display:flex;align-items:center;gap:10px}
+.pump-num{font-size:24px;font-weight:900;color:var(--accent);line-height:1;width:26px}
+.pump-lbl{font-weight:700;font-size:13px}
+.ftag{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:700;letter-spacing:.5px;margin-top:2px;display:inline-block}
+.ft-p{background:#7C3AED22;color:#A78BFA;border:1px solid #7C3AED55}
+.ft-d{background:#0EA5E922;color:#38BDF8;border:1px solid #0EA5E955}
+.ft-r{background:#F5A20022;color:#F5A200;border:1px solid #7A520055}
+.pump-body{padding:13px;display:flex;flex-direction:column;gap:10px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.pump-result{background:var(--dark);border-radius:8px;padding:10px 13px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);min-height:50px}
+.res-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
+.res-liters{font-family:'Courier New',monospace;font-size:13px;color:var(--green)}
+.res-amt{font-family:'Courier New',monospace;font-size:19px;font-weight:700;color:var(--accent)}
+.res-err{font-size:12px;color:var(--red)}
+.res-wait{font-size:12px;color:var(--muted);font-style:italic}
+.fuel-sel{background:transparent;border:none;color:var(--muted);font-size:11px;cursor:pointer;outline:none;padding:2px 0;width:auto}
+.tog-wrap{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:11px;color:var(--muted);border:none;background:none;padding:0}
+.tog{width:34px;height:19px;border-radius:10px;background:var(--border);position:relative;transition:background .2s;flex-shrink:0}
+.tog::after{content:'';position:absolute;top:3px;left:3px;width:13px;height:13px;border-radius:50%;background:var(--muted);transition:transform .2s}
+.tog.on{background:var(--accent)}
+.tog.on::after{transform:translateX(15px);background:#000}
+
+/* GRAND TOTAL */
+.grand{background:linear-gradient(135deg,#1C1400,#271C00);border:1px solid var(--accent);border-radius:var(--r);padding:18px 22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:14px}
+.gt-left{display:flex;flex-direction:column;gap:4px}
+.gt-title{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--adim);font-weight:700}
+.gt-info{font-size:13px;color:var(--muted)}
+.gt-l{font-family:'Courier New',monospace;font-size:14px;color:var(--green);margin-top:2px}
+.gt-right{display:flex;align-items:baseline;gap:8px}
+.gt-cur{font-size:20px;font-weight:900;color:var(--adim);align-self:flex-end;margin-bottom:4px}
+.gt-amt{font-size:44px;font-weight:900;color:var(--accent);letter-spacing:-1px;line-height:1}
+
+/* SUMMARY TABLE */
+.sum-box{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:14px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:9px 14px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border)}
+td{padding:9px 14px;border-bottom:1px solid var(--panel2);font-family:'Courier New',monospace}
+tr:last-child td{border-bottom:none}
+.td-lbl{font-family:system-ui,sans-serif;font-weight:600}
+.td-l{color:var(--green)}
+.td-a{color:var(--accent)}
+.td-off{color:var(--muted);font-style:italic;font-family:system-ui,sans-serif}
+.total-tr td{background:var(--panel2);font-weight:700}
+
+/* ACTIONS */
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+
+/* RECORDS LIST */
+.rec-row{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--border);gap:8px;flex-wrap:wrap}
+.rec-row:last-child{border-bottom:none}
+.rec-row:nth-child(even){background:var(--panel2)}
+.badge{padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.badge-m{background:#7C3AED22;color:#A78BFA;border:1px solid #7C3AED55}
+.badge-a{background:#F5A20022;color:var(--accent);border:1px solid var(--adim)}
+.badge-n{background:#0EA5E922;color:#38BDF8;border:1px solid #0EA5E955}
+.badge-f{background:#22C55E22;color:var(--green);border:1px solid #16A34A55}
+
+/* STAT CARDS */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:16px}
+.stat-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px}
+.stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.stat-val{font-family:'Courier New',monospace;font-size:20px;font-weight:700;color:var(--text)}
+.stat-val.green{color:var(--green)}
+.stat-val.amber{color:var(--accent)}
+
+/* CHART */
+.chart-box{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;margin-bottom:14px}
+.chart-title{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px}
+
+/* LOGIN */
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.login-card{width:100%;max-width:380px;background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:30px 26px}
+.login-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:20px}
+.login-tab{flex:1;padding:9px;border:none;background:none;color:var(--muted);cursor:pointer;font-size:13px;border-bottom:2px solid transparent;margin-bottom:-1px}
+.login-tab.on{color:var(--accent);border-bottom-color:var(--accent);font-weight:700}
+.form-group{margin-bottom:14px}
+
+/* FLASH */
+.flash-ok{background:#162A16;border:1px solid #22C55E55;color:var(--green);border-radius:var(--r);padding:10px 16px;font-size:13px;margin-bottom:12px}
+.flash-err{background:#2A1010;border:1px solid var(--red);color:var(--red);border-radius:var(--r);padding:10px 16px;font-size:13px;margin-bottom:12px}
+
+/* SPINNER */
+.spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* EMPTY */
+.empty{text-align:center;padding:44px 20px;color:var(--muted);font-size:13px}
+.empty .icon{font-size:30px;margin-bottom:10px}
+
+/* SEARCH BAR */
+.search-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px}
+
+/* PRINT */
+@media print{
+  body{background:#fff;color:#000}
+  header{background:#f0f0f0;border-color:#000}
+  .nav-bar,.actions,.price-bar,.pc-bar,.search-bar,.btn-ghost,.btn-danger,.hdr-right button{display:none!important}
+  .pump-card,.pcard,.sum-box,.grand,.chart-box{border:1px solid #ccc;background:#fff}
+  .pump-head,.pcard-head{background:#eee}
+  .pump-result,.gt-right,.grand{background:#f9f9f0}
+  th,td{color:#000}
+}
+@media(max-width:600px){
+  header{padding:12px 14px}
+  main{padding:14px 10px 40px}
+  .pump-grid{grid-template-columns:1fr}
+  .gt-amt{font-size:34px}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ LOGIN SCREEN ═══════════════════ -->
+<div id="login-screen" style="display:none">
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="brand" style="margin-bottom:22px">
+        <div class="brand-icon">⛽</div>
+        <div>
+          <div class="brand-name">Candaf</div>
+          <div class="brand-sub">Energies · Staff Portal</div>
+        </div>
+      </div>
+      <div class="login-tabs">
+        <button class="login-tab on" id="lt-login" onclick="switchLoginTab('login')">Sign in</button>
+        <button class="login-tab" id="lt-register" onclick="switchLoginTab('register')">Register</button>
+      </div>
+      <div id="login-flash"></div>
+      <div class="form-group"><label class="lbl">Full name</label><input id="li-name" type="text" placeholder="e.g. John Doe"/></div>
+      <div class="form-group"><label class="lbl">PIN (numbers only)</label><input id="li-pin" type="password" inputmode="numeric" maxlength="8" placeholder="4–8 digit PIN"/></div>
+      <div class="form-group" id="li-role-wrap" style="display:none">
+        <label class="lbl">Role</label>
+        <select id="li-role"><option>Attendant</option><option>Supervisor</option><option>Manager</option></select>
+      </div>
+      <button class="btn-accent" id="li-btn" onclick="doAuth()" style="width:100%;padding:10px;margin-top:4px">Sign in →</button>
+      <div style="font-size:11px;color:var(--muted);margin-top:14px;text-align:center">First time? Register to create your account.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ MAIN APP ═══════════════════ -->
+<div id="app-screen" style="display:none">
+
+<header>
+  <div class="brand">
+    <div class="brand-icon">⛽</div>
+    <div>
+      <div class="brand-name">Candaf Energies</div>
+      <div class="brand-sub">Daily Sales · Staff System</div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <div class="meta-badge">Date: <b id="hDate">—</b></div>
+    <div class="meta-badge">Shift: <b id="hShift">—</b></div>
+    <div style="display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:5px 12px">
+      <div class="avatar" id="hAvatarInitials">JD</div>
+      <div>
+        <div style="font-size:13px;font-weight:700" id="hUserName">—</div>
+        <div style="font-size:10px;color:var(--muted)" id="hUserRole">—</div>
+      </div>
+    </div>
+    <button class="btn-ghost btn-sm" onclick="doLogout()">Sign out</button>
+  </div>
+</header>
+
+<main>
+  <div class="nav-bar">
+    <button class="nav-btn on" id="tab-entry" onclick="setTab('entry')">📝 New Entry</button>
+    <button class="nav-btn" id="tab-records" onclick="setTab('records')">🗄 Records</button>
+    <button class="nav-btn" id="tab-report" onclick="setTab('report')">📊 Reports</button>
+    <button class="nav-btn" id="tab-staff" onclick="setTab('staff')" style="display:none">👥 Staff</button>
+  </div>
+
+  <!-- ── ENTRY TAB ── -->
+  <div id="tab-entry-view">
+    <div id="entry-flash"></div>
+    <!-- session info -->
+    <div class="pcard" style="margin-bottom:14px">
+      <div style="font-weight:700;font-size:13px;margin-bottom:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Session</div>
+      <div class="row">
+        <div class="cg" style="flex:1 1 130px"><label class="lbl">Date</label><input type="date" id="iDate" oninput="syncHeader()"/></div>
+        <div class="cg" style="flex:2 1 160px"><label class="lbl">Attendant</label><input id="iAtt" disabled style="opacity:.6"/></div>
+        <div class="cg" style="flex:2 1 160px"><label class="lbl">Shift</label>
+          <select id="iShift" onchange="syncHeader()">
+            <option>Morning (06:00–14:00)</option><option>Afternoon (14:00–22:00)</option>
+            <option>Night (22:00–06:00)</option><option>Full Day</option>
+          </select>
+        </div>
+        <div class="cg" style="flex:1 1 110px"><label class="lbl">Default Price/L</label><input type="number" id="defPrice" value="1.75" step="0.01" min="0" oninput="recalcAll()"/></div>
+        <div class="cg" style="flex:0 0 75px"><label class="lbl">Currency</label><input type="text" id="iCur" value="GHS" maxlength="5" oninput="recalcAll()" style="text-transform:uppercase"/></div>
+      </div>
+    </div>
+
+    <!-- pump count -->
+    <div class="sec-label">Number of pumps</div>
+    <div class="pc-bar">
+      <span style="font-size:12px;color:var(--muted)">Select:</span>
+      <button class="pc-btn" onclick="setPumps(6)">6</button>
+      <button class="pc-btn" onclick="setPumps(7)">7</button>
+      <button class="pc-btn on" onclick="setPumps(8)">8</button>
+      <button class="pc-btn" onclick="setPumps(9)">9</button>
+      <button class="pc-btn" onclick="setPumps(10)">10</button>
+      <button class="pc-btn" onclick="setPumps(12)">12</button>
+    </div>
+
+    <!-- pump grid -->
+    <div class="pump-grid" id="pumpGrid"></div>
+
+    <!-- summary table -->
+    <div class="sum-box">
+      <div class="pcard-head">📋 Pump Summary</div>
+      <table>
+        <thead><tr><th>Pump</th><th>Fuel</th><th>Opening (L)</th><th>Closing (L)</th><th>Sold (L)</th><th>Price/L</th><th id="thAmt">Sales (GHS)</th></tr></thead>
+        <tbody id="sumBody"></tbody>
+      </table>
+      <div class="grand" style="margin:14px 16px 16px">
+        <div class="gt-left">
+          <div class="gt-title">Grand Total — Active Pumps</div>
+          <div class="gt-info" id="gtInfo">0 pumps</div>
+          <div class="gt-l" id="gtL">0.00 L sold</div>
+        </div>
+        <div class="gt-right">
+          <div class="gt-cur" id="gtCur">GHS</div>
+          <div class="gt-amt" id="gtAmt">0.00</div>
+        </div>
+      </div>
+      <div class="actions" style="padding:0 16px 16px">
+        <button class="btn-accent" id="saveBtn" onclick="doSave()">💾 Save Record</button>
+        <button class="btn-ghost" onclick="doReset()">🔄 Reset Readings</button>
+        <button class="btn-ghost" onclick="window.print()">🖨️ Print</button>
+        <button class="btn-ghost" onclick="doCSV()">📥 Export CSV</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RECORDS TAB ── -->
+  <div id="tab-records-view" style="display:none">
+    <div id="rec-detail-view" style="display:none"></div>
+    <div id="rec-list-view">
+      <div class="stat-grid" id="recStats"></div>
+      <div class="search-bar">
+        <div class="cg" style="flex:2 1 170px"><label class="lbl">Search</label><input id="recSearch" placeholder="Attendant / date / shift" oninput="renderRecords()"/></div>
+        <div class="cg" style="flex:1 1 140px"><label class="lbl">Filter date</label><input type="date" id="recDate" oninput="renderRecords()"/></div>
+        <button onclick="document.getElementById('recSearch').value='';document.getElementById('recDate').value='';renderRecords()">Clear</button>
+        <button onclick="loadRecords()">↻ Refresh</button>
+        <button onclick="exportAllCSV()">📥 Export All</button>
+      </div>
+      <div class="sum-box" id="recListBox">
+        <div class="empty"><div class="icon">📋</div>Loading records…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── REPORT TAB ── -->
+  <div id="tab-report-view" style="display:none">
+    <div class="stat-grid" id="rptStats"></div>
+    <div class="row" style="margin-bottom:16px;align-items:flex-end">
+      <div class="cg" style="flex:1 1 130px"><label class="lbl">From date</label><input type="date" id="rptFrom"/></div>
+      <div class="cg" style="flex:1 1 130px"><label class="lbl">To date</label><input type="date" id="rptTo"/></div>
+      <div class="cg" style="flex:1 1 140px"><label class="lbl">Attendant</label>
+        <select id="rptAtt"><option value="">All staff</option></select>
+      </div>
+      <button onclick="renderReport()">Apply</button>
+    </div>
+    <div class="chart-box">
+      <div class="chart-title">Daily Revenue Trend</div>
+      <canvas id="chartRevenue" height="80"></canvas>
+    </div>
+    <div class="chart-box">
+      <div class="chart-title">Daily Litres Sold</div>
+      <canvas id="chartLitres" height="80"></canvas>
+    </div>
+    <div class="sum-box" id="rptTableBox">
+      <div class="pcard-head">Day-by-Day Breakdown</div>
+      <div class="empty">Apply filters above to generate report.</div>
+    </div>
+  </div>
+
+  <!-- ── STAFF TAB (Manager only) ── -->
+  <div id="tab-staff-view" style="display:none">
+    <div class="sum-box" id="staffListBox">
+      <div class="empty"><div class="icon">👥</div>Loading…</div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   STORAGE — IndexedDB with localStorage fallback
+   Shared key prefix so all devices see same data
+   when hosted; for true multi-device you need a
+   server — this uses localStorage (works for one
+   device; swap dbGet/dbSet for a REST API to go live)
+═══════════════════════════════════════════ */
+function dbGet(k){try{var v=localStorage.getItem('ce:'+k);return v?JSON.parse(v):null;}catch{return null;}}
+function dbSet(k,v){try{localStorage.setItem('ce:'+k,JSON.stringify(v));}catch(e){console.error(e);}}
+function dbDel(k){try{localStorage.removeItem('ce:'+k);}catch{}}
+
+/* ═══════════════════════════════════════════
+   AUTH
+═══════════════════════════════════════════ */
+var _session=null;
+var _loginMode='login';
+
+function getStaff(){return dbGet('staff')||[];}
+function saveStaff(a){dbSet('staff',a);}
+function getSession(){try{return JSON.parse(sessionStorage.getItem('ce-session')||'null');}catch{return null;}}
+function saveSession(u){if(u)sessionStorage.setItem('ce-session',JSON.stringify(u));else sessionStorage.removeItem('ce-session');}
+function initials(n){return n.trim().split(/\s+/).map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();}
+
+function switchLoginTab(mode){
+  _loginMode=mode;
+  document.getElementById('lt-login').className='login-tab'+(mode==='login'?' on':'');
+  document.getElementById('lt-register').className='login-tab'+(mode==='register'?' on':'');
+  document.getElementById('li-role-wrap').style.display=mode==='register'?'block':'none';
+  document.getElementById('li-btn').textContent=mode==='login'?'Sign in →':'Create account →';
+  document.getElementById('login-flash').innerHTML='';
+}
+
+function loginFlash(msg,ok){
+  document.getElementById('login-flash').innerHTML='<div class="'+(ok?'flash-ok':'flash-err')+'">'+msg+'</div>';
+}
+
+function doAuth(){
+  var name=document.getElementById('li-name').value.trim();
+  var pin=document.getElementById('li-pin').value.trim();
+  if(!name){loginFlash('Enter your name.',false);return;}
+  if(pin.length<4){loginFlash('PIN must be at least 4 digits.',false);return;}
+  var staff=getStaff();
+  if(_loginMode==='login'){
+    var user=staff.find(function(s){return s.name.toLowerCase()===name.toLowerCase()&&s.pin===pin;});
+    if(!user){loginFlash('Name or PIN incorrect.',false);return;}
+    saveSession(user);bootApp(user);
+  } else {
+    if(staff.find(function(s){return s.name.toLowerCase()===name.toLowerCase();})){loginFlash('That name is already registered.',false);return;}
+    var role=document.getElementById('li-role').value;
+    var newUser={id:'u-'+Date.now(),name:name,pin:pin,role:role,created:new Date().toISOString()};
+    staff.push(newUser);saveStaff(staff);
+    saveSession(newUser);bootApp(newUser);
+  }
+}
+
+function doLogout(){saveSession(null);_session=null;showLogin();}
+
+/* ═══════════════════════════════════════════
+   BOOT
+═══════════════════════════════════════════ */
+(function(){
+  var u=getSession();
+  if(u){bootApp(u);}else{showLogin();}
+})();
+
+function showLogin(){
+  document.getElementById('login-screen').style.display='';
+  document.getElementById('app-screen').style.display='none';
+}
+
+function bootApp(user){
+  _session=user;
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app-screen').style.display='';
+  document.getElementById('hUserName').textContent=user.name;
+  document.getElementById('hUserRole').textContent=user.role;
+  document.getElementById('hAvatarInitials').textContent=initials(user.name);
+  document.getElementById('iAtt').value=user.name;
+  if(user.role==='Manager')document.getElementById('tab-staff').style.display='';
+  // init date
+  var td=today();
+  document.getElementById('iDate').value=td;
+  syncHeader();
+  setPumps(8);
+  setTab('entry');
+}
+
+/* ═══════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
+function today(){var d=new Date();return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());}
+function p2(n){return String(n).padStart(2,'0');}
+function fmt(n){return(n==null||isNaN(n))?'—':parseFloat(n).toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmtDate(s){if(!s)return'—';var p=s.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+function shiftClass(s){if(!s)return'badge';if(s.includes('Morning'))return'badge badge-m';if(s.includes('Afternoon'))return'badge badge-a';if(s.includes('Night'))return'badge badge-n';return'badge badge-f';}
+
+function syncHeader(){
+  var d=document.getElementById('iDate').value;
+  var s=document.getElementById('iShift').value;
+  document.getElementById('hDate').textContent=d?fmtDate(d):'—';
+  document.getElementById('hShift').textContent=s.split(' ')[0];
+}
+
+/* ═══════════════════════════════════════════
+   TAB SWITCHING
+═══════════════════════════════════════════ */
+var TABS=['entry','records','report','staff'];
+function setTab(t){
+  TABS.forEach(function(k){
+    document.getElementById('tab-'+k+'-view').style.display=k===t?'':'none';
+    var btn=document.getElementById('tab-'+k);
+    if(btn)btn.className='nav-btn'+(k===t?' on':'');
+  });
+  if(t==='records')loadRecords();
+  if(t==='report')initReport();
+  if(t==='staff')loadStaffView();
+}
+
+/* ═══════════════════════════════════════════
+   PUMP STATE
+═══════════════════════════════════════════ */
+var N=8;
+var FUELS=['Petrol','Diesel','Premium'];
+var FTAG={Petrol:'ft-p',Diesel:'ft-d',Premium:'ft-r'};
+var pumps=[];
+
+function setPumps(n){
+  N=n;
+  document.querySelectorAll('.pc-btn').forEach(function(b){b.classList.toggle('on',parseInt(b.textContent)===n);});
+  while(pumps.length<n)pumps.push({active:true,fuel:FUELS[pumps.length%FUELS.length],open:'',close:'',price:''});
+  pumps=pumps.slice(0,n);
+  renderGrid();
+}
+
+function renderGrid(){
+  var g=document.getElementById('pumpGrid');g.innerHTML='';
+  for(var i=0;i<N;i++)g.innerHTML+=cardHTML(i);
+  recalcAll();
+}
+
+function cardHTML(i){
+  var p=pumps[i];
+  var opts=FUELS.map(function(f){return'<option'+(f===p.fuel?' selected':'')+'>'+f+'</option>';}).join('');
+  return'<div class="pump-card '+(p.active?'on-pump':'off-pump')+'" id="pc'+i+'">'
+    +'<div class="pump-head"><div class="pump-id"><div class="pump-num">'+(i+1)+'</div><div><div class="pump-lbl">Pump '+(i+1)+'</div><span class="ftag '+FTAG[p.fuel]+'" id="ptag'+i+'">'+p.fuel+'</span></div></div>'
+    +'<div style="display:flex;align-items:center;gap:8px"><select class="fuel-sel" onchange="setFuel('+i+',this.value)">'+opts+'</select>'
+    +'<button class="tog-wrap" onclick="togPump('+i+')"><div class="tog'+(p.active?' on':'')+'" id="tog'+i+'"></div><span id="toglbl'+i+'">'+(p.active?'ON':'OFF')+'</span></button></div></div>'
+    +'<div class="pump-body"><div class="row2">'
+    +'<div><label class="lbl">Opening Meter (L)</label><input type="number" id="oi'+i+'" value="'+p.open+'" min="0" step="0.01" placeholder="e.g. 12500" oninput="onVal('+i+')" '+(p.active?'':'disabled')+'></div>'
+    +'<div><label class="lbl">Closing Meter (L)</label><input type="number" id="ci'+i+'" value="'+p.close+'" min="0" step="0.01" placeholder="e.g. 15300" oninput="onVal('+i+')" '+(p.active?'':'disabled')+'></div>'
+    +'</div><div><label class="lbl">Price / Litre (blank = default)</label>'
+    +'<input type="number" id="pi'+i+'" value="'+p.price+'" min="0" step="0.01" placeholder="Default" oninput="onVal('+i+')" '+(p.active?'':'disabled')+'></div>'
+    +'<div class="pump-result" id="pr'+i+'"><span class="res-wait">Enter readings above</span></div>'
+    +'</div></div>';
+}
+
+function togPump(i){
+  pumps[i].active=!pumps[i].active;
+  var card=document.getElementById('pc'+i);
+  card.className='pump-card '+(pumps[i].active?'on-pump':'off-pump');
+  document.getElementById('tog'+i).className='tog'+(pumps[i].active?' on':'');
+  document.getElementById('toglbl'+i).textContent=pumps[i].active?'ON':'OFF';
+  card.querySelectorAll('input').forEach(function(el){el.disabled=!pumps[i].active;});
+  updatePumpResult(i);updateSummary();
+}
+function setFuel(i,f){
+  pumps[i].fuel=f;
+  document.getElementById('ptag'+i).textContent=f;
+  document.getElementById('ptag'+i).className='ftag '+FTAG[f];
+}
+function onVal(i){
+  pumps[i].open=document.getElementById('oi'+i).value;
+  pumps[i].close=document.getElementById('ci'+i).value;
+  pumps[i].price=document.getElementById('pi'+i).value;
+  updatePumpResult(i);updateSummary();
+}
+
+function calcPump(i){
+  var p=pumps[i];
+  var def=parseFloat(document.getElementById('defPrice').value)||0;
+  if(!p.active)return{L:NaN,A:NaN,pv:def,bad:false};
+  var ov=parseFloat(p.open),cv=parseFloat(p.close),pv=parseFloat(p.price)||def;
+  var L=(!isNaN(ov)&&!isNaN(cv))?(cv-ov):NaN;
+  var A=(!isNaN(L)&&L>=0&&pv>0)?L*pv:NaN;
+  return{L:L,A:A,pv:pv,bad:!isNaN(L)&&L<0};
+}
+
+function updatePumpResult(i){
+  var p=pumps[i];
+  var cur=(document.getElementById('iCur').value||'GHS').toUpperCase();
+  var el=document.getElementById('pr'+i);
+  if(!el)return;
+  var c=calcPump(i);
+  if(!p.active){el.innerHTML='<span class="res-wait">Pump inactive</span>';return;}
+  if(c.bad){el.innerHTML='<span class="res-err">⚠ Closing &lt; Opening — check meter</span>';return;}
+  if(isNaN(c.L)){el.innerHTML='<span class="res-wait">Enter readings above</span>';return;}
+  el.innerHTML='<div><div class="res-lbl">Litres Sold</div><div class="res-liters">'+fmt(c.L)+' L</div></div>'
+    +'<div style="text-align:right"><div class="res-lbl">Sales ('+cur+')</div><div class="res-amt">'+(isNaN(c.A)?'—':fmt(c.A))+'</div></div>';
+}
+
+function recalcAll(){
+  var cur=(document.getElementById('iCur').value||'GHS').toUpperCase();
+  document.getElementById('thAmt').textContent='Sales ('+cur+')';
+  for(var i=0;i<N;i++)updatePumpResult(i);
+  updateSummary();
+}
+
+function updateSummary(){
+  var def=parseFloat(document.getElementById('defPrice').value)||0;
+  var cur=(document.getElementById('iCur').value||'GHS').toUpperCase();
+  var rows='',totalL=0,totalA=0,active=0;
+  for(var i=0;i<N;i++){
+    var p=pumps[i];
+    if(!p.active){rows+='<tr><td class="td-lbl">Pump '+(i+1)+'</td><td class="td-off">—</td><td class="td-off" colspan="5">Inactive</td></tr>';continue;}
+    var c=calcPump(i);
+    if(!c.bad&&!isNaN(c.L)&&!isNaN(c.A)){totalL+=c.L;totalA+=c.A;active++;}
+    var ov=parseFloat(p.open),cv=parseFloat(p.close);
+    rows+='<tr><td class="td-lbl">Pump '+(i+1)+'</td>'
+      +'<td><span class="ftag '+FTAG[p.fuel]+'">'+p.fuel+'</span></td>'
+      +'<td>'+(isNaN(ov)?'—':fmt(ov))+'</td>'
+      +'<td>'+(isNaN(cv)?'—':fmt(cv))+'</td>'
+      +'<td class="td-l">'+(c.bad?'<span style="color:var(--red)">Error</span>':isNaN(c.L)?'—':fmt(c.L)+' L')+'</td>'
+      +'<td>'+c.pv.toFixed(2)+'</td>'
+      +'<td class="td-a">'+(c.bad||isNaN(c.A)?'—':fmt(c.A))+'</td></tr>';
+  }
+  document.getElementById('sumBody').innerHTML=rows;
+  document.getElementById('gtInfo').textContent=active+' pump'+(active!==1?'s':'')+' active';
+  document.getElementById('gtL').textContent=fmt(totalL)+' L sold';
+  document.getElementById('gtAmt').textContent=fmt(totalA);
+  document.getElementById('gtCur').textContent=cur;
+  document.getElementById('thAmt').textContent='Sales ('+cur+')';
+}
+
+function doReset(){if(!confirm('Clear all pump readings?'))return;pumps=pumps.map(function(p){return Object.assign({},p,{open:'',close:'',price:''});});renderGrid();}
+
+/* ═══════════════════════════════════════════
+   SAVE RECORD
+═══════════════════════════════════════════ */
+function doSave(){
+  if(!_session){alert('Please sign in.');return;}
+  var date=document.getElementById('iDate').value;
+  if(!date){entryFlash('Select a date.','err');return;}
+  var def=parseFloat(document.getElementById('defPrice').value)||0;
+  var cur=(document.getElementById('iCur').value||'GHS').toUpperCase();
+  var totalL=0,totalA=0,active=0;
+  var pdata=pumps.map(function(p,i){
+    var c=calcPump(i);
+    if(p.active&&!c.bad&&!isNaN(c.L)&&!isNaN(c.A)){totalL+=c.L;totalA+=c.A;active++;}
+    return{fuel:p.fuel,active:p.active,open:p.open,close:p.close,price:p.price,pv:c.pv,
+      litres:(!c.bad&&!isNaN(c.L))?parseFloat(c.L.toFixed(4)):null,
+      amount:(!c.bad&&!isNaN(c.A))?parseFloat(c.A.toFixed(2)):null};
+  });
+  var id='rec-'+Date.now()+'-'+Math.random().toString(36).slice(2,5);
+  var rec={id:id,date:date,attendant:_session.name,attendantId:_session.id,role:_session.role,
+    shift:document.getElementById('iShift').value,currency:cur,defPrice:def,pumps:pdata,
+    totalLitres:parseFloat(totalL.toFixed(4)),totalAmount:parseFloat(totalA.toFixed(2)),
+    savedAt:new Date().toISOString()};
+  // save full record
+  dbSet('record:'+id,rec);
+  // update index
+  var idx=dbGet('record-index')||[];
+  idx.unshift({id:id,date:date,attendant:_session.name,role:_session.role,
+    shift:rec.shift,currency:cur,totalLitres:rec.totalLitres,totalAmount:rec.totalAmount,savedAt:rec.savedAt});
+  dbSet('record-index',idx);
+  entryFlash('✓ Record saved — '+date+' · '+cur+' '+fmt(totalA),'ok');
+  pumps=pumps.map(function(p){return Object.assign({},p,{open:'',close:'',price:''});});
+  renderGrid();
+}
+
+function entryFlash(msg,type){
+  document.getElementById('entry-flash').innerHTML='<div class="flash-'+(type==='ok'?'ok':'err')+'">'+msg+'</div>';
+  if(type==='ok')setTimeout(function(){document.getElementById('entry-flash').innerHTML='';},5000);
+}
+
+/* ═══════════════════════════════════════════
+   RECORDS TAB
+═══════════════════════════════════════════ */
+var _allRecords=[];
+
+function loadRecords(){
+  var idx=dbGet('record-index')||[];
+  _allRecords=idx;
+  populateAttFilter();
+  renderRecords();
+}
+
+function renderRecords(){
+  var q=(document.getElementById('recSearch').value||'').toLowerCase();
+  var fd=document.getElementById('recDate').value;
+  var filtered=_allRecords.filter(function(r){
+    return(!q||(r.attendant.toLowerCase().includes(q)||r.date.includes(q)||r.shift.toLowerCase().includes(q)))&&(!fd||r.date===fd);
+  });
+  var tL=filtered.reduce(function(s,r){return s+(r.totalLitres||0);},0);
+  var tA=filtered.reduce(function(s,r){return s+(r.totalAmount||0);},0);
+  var days=[...new Set(filtered.map(function(r){return r.date;}))].length;
+  document.getElementById('recStats').innerHTML=
+    statCard('Records',filtered.length,'')+statCard('Unique Days',days,'')+
+    statCard('Total Litres',fmt(tL)+' L','green')+statCard('Total Revenue',fmt(tA),'amber');
+  if(filtered.length===0){
+    document.getElementById('recListBox').innerHTML='<div class="empty"><div class="icon">📋</div>No records found</div>';return;
+  }
+  var html='';
+  filtered.forEach(function(r,idx){
+    var cur=r.currency||'GHS';
+    html+='<div class="rec-row">'
+      +'<div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">'
+      +'<div class="avatar" style="flex-shrink:0;font-size:11px">'+initials(r.attendant)+'</div>'
+      +'<div style="min-width:0"><div style="font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+r.attendant+'</div>'
+      +'<div style="font-size:11px;color:var(--muted)">'+fmtDate(r.date)+' · <span class="'+shiftClass(r.shift)+'">'+r.shift.split(' ')[0]+'</span></div></div></div>'
+      +'<div style="text-align:right;flex-shrink:0"><div style="font-size:11px;color:var(--green);font-family:\'Courier New\',monospace">'+fmt(r.totalLitres)+' L</div>'
+      +'<div style="font-weight:700;color:var(--accent);font-family:\'Courier New\',monospace">'+cur+' '+fmt(r.totalAmount)+'</div></div>'
+      +'<button class="btn-sm" onclick="showDetail(\''+r.id+'\')">View →</button></div>';
+  });
+  document.getElementById('recListBox').innerHTML=html;
+}
+
+function statCard(label,val,cls){
+  return'<div class="stat-card"><div class="stat-label">'+label+'</div><div class="stat-val '+cls+'">'+val+'</div></div>';
+}
+
+function showDetail(id){
+  var rec=dbGet('record:'+id);
+  if(!rec){alert('Record not found.');return;}
+  document.getElementById('rec-list-view').style.display='none';
+  var cur=rec.currency||'GHS';
+  var canDel=_session&&(_session.role==='Manager'||_session.role==='Supervisor');
+  var rows='';
+  rec.pumps.forEach(function(p,i){
+    rows+='<tr style="'+(p.active?'':'opacity:.45')+'">'
+      +'<td class="td-lbl">Pump '+(i+1)+'</td>'
+      +'<td class="td-lbl"><span class="ftag '+FTAG[p.fuel]+'">'+p.fuel+'</span></td>'
+      +'<td>'+(p.open||'—')+'</td><td>'+(p.close||'—')+'</td>'
+      +'<td class="td-l">'+(p.litres!=null?fmt(p.litres)+' L':p.active?'—':'Inactive')+'</td>'
+      +'<td>'+fmt(p.pv)+'</td>'
+      +'<td class="td-a">'+(p.amount!=null?fmt(p.amount):'—')+'</td></tr>';
+  });
+  var html='<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">'
+    +'<button onclick="closeDetail()" style="padding:5px 10px">← Back</button>'
+    +'<div style="flex:1"><div style="font-weight:700;font-size:14px">'+fmtDate(rec.date)+' — '+rec.attendant+'</div>'
+    +'<div style="margin-top:4px;display:flex;gap:6px;align-items:center"><span class="'+shiftClass(rec.shift)+'">'+rec.shift.split(' ')[0]+'</span>'
+    +(rec.role?'<span style="font-size:11px;color:var(--muted)">'+rec.role+'</span>':'')+'</div></div>'
+    +'<button onclick="exportRecCSV(\''+id+'\')" class="btn-ghost btn-sm">Export CSV</button>'
+    +(canDel?'<button class="btn-danger btn-sm" onclick="deleteRecord(\''+id+'\')">Delete</button>':'')
+    +'</div>'
+    +'<div class="sum-box" style="margin-bottom:10px"><table>'
+    +'<thead><tr><th>Pump</th><th>Fuel</th><th>Opening</th><th>Closing</th><th>Sold (L)</th><th>Price/L</th><th>Sales ('+cur+')</th></tr></thead>'
+    +'<tbody>'+rows+'</tbody>'
+    +'<tfoot><tr class="total-tr"><td class="td-lbl" colspan="4">Grand Total</td><td class="td-l">'+fmt(rec.totalLitres)+' L</td><td></td><td class="td-a">'+cur+' '+fmt(rec.totalAmount)+'</td></tr></tfoot>'
+    +'</table></div>'
+    +'<div style="font-size:11px;color:var(--muted)">Saved: '+new Date(rec.savedAt).toLocaleString()+' · ID: '+rec.id+'</div>';
+  document.getElementById('rec-detail-view').innerHTML=html;
+  document.getElementById('rec-detail-view').style.display='';
+}
+
+function closeDetail(){
+  document.getElementById('rec-detail-view').style.display='none';
+  document.getElementById('rec-list-view').style.display='';
+}
+
+function deleteRecord(id){
+  if(!confirm('Delete this record permanently? This cannot be undone.'))return;
+  dbDel('record:'+id);
+  var idx=dbGet('record-index')||[];
+  dbSet('record-index',idx.filter(function(r){return r.id!==id;}));
+  closeDetail();loadRecords();
+}
+
+function exportRecCSV(id){
+  var rec=dbGet('record:'+id);if(!rec)return;
+  var cur=rec.currency||'GHS';
+  var c='Candaf Energies - Sales Record\nDate,'+rec.date+'\nAttendant,'+rec.attendant+'\nRole,'+(rec.role||'')+'\nShift,'+rec.shift+'\nSaved,'+new Date(rec.savedAt).toLocaleString()+'\n\nPump,Fuel,Status,Opening,Closing,Litres,Price/L,Sales ('+cur+')\n';
+  rec.pumps.forEach(function(p,i){c+='Pump '+(i+1)+','+p.fuel+','+(p.active?'Active':'Inactive')+','+(p.open||'')+','+(p.close||'')+','+(p.litres!=null?p.litres.toFixed(2):'')+','+p.pv.toFixed(2)+','+(p.amount!=null?p.amount.toFixed(2):'')+'\n';});
+  c+='\nGrand Total,,,,,' +rec.totalLitres.toFixed(2)+',,'+rec.totalAmount.toFixed(2)+'\n';
+  dl(c,'Candaf_'+rec.date+'_'+rec.attendant.replace(/\s+/g,'_')+'.csv');
+}
+
+function exportAllCSV(){
+  var filtered=filteredRecords();
+  var c='Candaf Energies - All Records\n\nDate,Attendant,Role,Shift,Total Litres,Total Amount,Currency,Saved\n';
+  filtered.forEach(function(r){c+=r.date+',"'+r.attendant+'","'+(r.role||'')+'","'+r.shift+'",'+r.totalLitres+','+r.totalAmount+','+(r.currency||'GHS')+',"'+new Date(r.savedAt).toLocaleString()+'"\n';});
+  dl(c,'Candaf_AllRecords.csv');
+}
+
+function filteredRecords(){
+  var q=(document.getElementById('recSearch').value||'').toLowerCase();
+  var fd=document.getElementById('recDate').value;
+  return _allRecords.filter(function(r){
+    return(!q||(r.attendant.toLowerCase().includes(q)||r.date.includes(q)||r.shift.toLowerCase().includes(q)))&&(!fd||r.date===fd);
+  });
+}
+
+function dl(content,filename){
+  var b=new Blob([content],{type:'text/csv'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=filename;a.click();
+}
+
+/* ═══════════════════════════════════════════
+   REPORT TAB
+═══════════════════════════════════════════ */
+var _charts={};
+
+function populateAttFilter(){
+  var atts=[...new Set(_allRecords.map(function(r){return r.attendant;}))].sort();
+  var sel=document.getElementById('rptAtt');
+  var cur=sel.value;
+  sel.innerHTML='<option value="">All staff</option>';
+  atts.forEach(function(a){sel.innerHTML+='<option'+(a===cur?' selected':'')+'>'+a+'</option>';});
+}
+
+function initReport(){
+  var idx=dbGet('record-index')||[];
+  _allRecords=idx;
+  populateAttFilter();
+  // default: last 30 days
+  var to=new Date(),from=new Date(to);from.setDate(from.getDate()-29);
+  document.getElementById('rptFrom').value=from.getFullYear()+'-'+p2(from.getMonth()+1)+'-'+p2(from.getDate());
+  document.getElementById('rptTo').value=to.getFullYear()+'-'+p2(to.getMonth()+1)+'-'+p2(to.getDate());
+  renderReport();
+}
+
+function renderReport(){
+  var from=document.getElementById('rptFrom').value;
+  var to=document.getElementById('rptTo').value;
+  var att=document.getElementById('rptAtt').value;
+  var filtered=_allRecords.filter(function(r){
+    return(!from||r.date>=from)&&(!to||r.date<=to)&&(!att||r.attendant===att);
+  });
+  // stats
+  var tL=filtered.reduce(function(s,r){return s+(r.totalLitres||0);},0);
+  var tA=filtered.reduce(function(s,r){return s+(r.totalAmount||0);},0);
+  var days=[...new Set(filtered.map(function(r){return r.date;}))].length;
+  var avgDaily=days>0?(tA/days):0;
+  document.getElementById('rptStats').innerHTML=
+    statCard('Period Records',filtered.length,'')+statCard('Active Days',days,'')+
+    statCard('Total Litres',fmt(tL)+' L','green')+statCard('Total Revenue',fmt(tA),'amber')+
+    statCard('Avg Daily Revenue',fmt(avgDaily),'');
+
+  // group by date
+  var byDate={};
+  filtered.forEach(function(r){
+    if(!byDate[r.date])byDate[r.date]={litres:0,amount:0,records:0,attendants:[]};
+    byDate[r.date].litres+=r.totalLitres||0;
+    byDate[r.date].amount+=r.totalAmount||0;
+    byDate[r.date].records++;
+    if(!byDate[r.date].attendants.includes(r.attendant))byDate[r.date].attendants.push(r.attendant);
+  });
+  var dates=Object.keys(byDate).sort();
+
+  // charts
+  buildChart('chartRevenue','Revenue ('+((filtered[0]&&filtered[0].currency)||'GHS')+')',dates,dates.map(function(d){return byDate[d].amount.toFixed(2);}),false);
+  buildChart('chartLitres','Litres Sold',dates,dates.map(function(d){return byDate[d].litres.toFixed(2);}),true);
+
+  // table
+  if(dates.length===0){
+    document.getElementById('rptTableBox').innerHTML='<div class="pcard-head">Day-by-Day Breakdown</div><div class="empty">No records in this range.</div>';return;
+  }
+  var rows='';
+  dates.slice().reverse().forEach(function(d){
+    var dr=byDate[d];
+    rows+='<tr><td class="td-lbl">'+fmtDate(d)+'</td><td>'+dr.records+'</td><td>'+dr.attendants.join(', ')+'</td>'
+      +'<td class="td-l">'+fmt(dr.litres)+' L</td><td class="td-a">'+fmt(dr.amount)+'</td></tr>';
+  });
+  document.getElementById('rptTableBox').innerHTML='<div class="pcard-head">Day-by-Day Breakdown</div>'
+    +'<table><thead><tr><th>Date</th><th>Records</th><th>Attendants</th><th>Litres Sold</th><th>Revenue</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+function buildChart(id,label,labels,data,isGreen){
+  if(_charts[id]){_charts[id].destroy();}
+  var ctx=document.getElementById(id);
+  if(!ctx)return;
+  var color=isGreen?'#22C55E':'#F5A200';
+  var colorBg=isGreen?'rgba(34,197,94,0.12)':'rgba(245,162,0,0.12)';
+  _charts[id]=new Chart(ctx,{
+    type:'line',
+    data:{labels:labels.map(function(d){return fmtDate(d);}),
+      datasets:[{label:label,data:data,borderColor:color,backgroundColor:colorBg,borderWidth:2,pointRadius:3,pointBackgroundColor:color,fill:true,tension:.35}]},
+    options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return' '+parseFloat(c.parsed.y).toLocaleString('en-GB',{minimumFractionDigits:2});}}}},
+      scales:{x:{ticks:{color:'#7A7E92',font:{size:11}},grid:{color:'#2A2D3A'}},y:{ticks:{color:'#7A7E92',font:{size:11}},grid:{color:'#2A2D3A'}}}}
+  });
+}
+
+/* ═══════════════════════════════════════════
+   STAFF TAB
+═══════════════════════════════════════════ */
+function loadStaffView(){
+  var staff=getStaff();
+  if(staff.length===0){
+    document.getElementById('staffListBox').innerHTML='<div class="empty"><div class="icon">👥</div>No staff registered yet.</div>';return;
+  }
+  var html='<div class="pcard-head">Registered Staff ('+staff.length+')</div>';
+  staff.forEach(function(u,i){
+    html+='<div class="rec-row"><div style="display:flex;align-items:center;gap:10px;flex:1">'
+      +'<div class="avatar" style="font-size:11px">'+initials(u.name)+'</div>'
+      +'<div><div style="font-weight:700;font-size:13px">'+u.name+'</div>'
+      +'<div style="font-size:11px;color:var(--muted)">'+u.role+' · Joined '+new Date(u.created).toLocaleDateString()+'</div></div></div>'
+      +'<span class="ftag '+(u.role==='Manager'?'ft-r':u.role==='Supervisor'?'ft-d':'ft-p')+'">'+u.role+'</span>'
+      +'<button class="btn-danger btn-sm" onclick="removeStaff(\''+u.id+'\')">Remove</button></div>';
+  });
+  html+='<div style="padding:10px 16px;font-size:11px;color:var(--muted)">Staff sign in from any device using their name and PIN.</div>';
+  document.getElementById('staffListBox').innerHTML=html;
+}
+
+function removeStaff(id){
+  if(!confirm('Remove this staff member? They will not be able to log in.'))return;
+  var staff=getStaff().filter(function(u){return u.id!==id;});
+  saveStaff(staff);loadStaffView();
+}
+
+/* ═══════════════════════════════════════════
+   ENTRY CSV
+═══════════════════════════════════════════ */
+function doCSV(){
+  var def=parseFloat(document.getElementById('defPrice').value)||0;
+  var cur=(document.getElementById('iCur').value||'GHS').toUpperCase();
+  var date=document.getElementById('iDate').value;
+  var att=_session?_session.name:'N/A';
+  var sh=document.getElementById('iShift').value;
+  var c='Candaf Energies - Daily Sales\nDate,'+date+'\nAttendant,'+att+'\nShift,'+sh+'\n\nPump,Fuel,Opening,Closing,Litres Sold,Price/L,Sales ('+cur+')\n';
+  var tL=0,tA=0;
+  pumps.forEach(function(p,i){
+    if(!p.active){c+='Pump '+(i+1)+','+p.fuel+',INACTIVE,,,,,\n';return;}
+    var cc=calcPump(i);
+    var L=!cc.bad&&!isNaN(cc.L)?cc.L:NaN;
+    var A=!isNaN(L)&&!isNaN(cc.A)?cc.A:NaN;
+    if(!isNaN(L)&&!isNaN(A)){tL+=L;tA+=A;}
+    c+='Pump '+(i+1)+','+p.fuel+','+(p.open||'')+','+(p.close||'')+','+(isNaN(L)?'':L.toFixed(2))+','+cc.pv.toFixed(2)+','+(isNaN(A)?'':A.toFixed(2))+'\n';
+  });
+  c+='\nGrand Total,,,,'+tL.toFixed(2)+',,'+tA.toFixed(2)+'\n';
+  dl(c,'Candaf_'+date+'.csv');
+}
+</script>
+</body>
+</html>
